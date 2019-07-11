@@ -1,18 +1,43 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// SillikOne, UE4.
 
 
 #include "PuzzlePlatformGameInstance.h"
 #include "GameFramework/PlayerController.h"
+#include "Platforms/Trigger.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/Engine.h"
+#include "UObject/ConstructorHelpers.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer & ObjectInitializer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("GAME INSTANCE CONTRUCTOR"))
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetClass(TEXT("/Game/MenuSystem/W_MainMenu"));
+	
+	if (!ensure(MainMenuWidgetClass.Class)) { return; }
+	MainMenuWidget = MainMenuWidgetClass.Class;
 }
 
 void UPuzzlePlatformGameInstance::Init()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GAME INSTANCE INIT"))
+	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *MainMenuWidget->GetName())
+}
+
+
+void UPuzzlePlatformGameInstance::LoadMenu()
+{
+	// Create and show Menu
+	if (!ensure(MainMenuWidget)) { return; }
+	UUserWidget* Menu = CreateWidget<UUserWidget>(this, MainMenuWidget);
+	Menu->AddToViewport();
+
+	// Set InputMode UI only and show Mouse Cursor
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!ensure(PlayerController)) { return; }
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetWidgetToFocus(Menu->TakeWidget());
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	PlayerController->SetInputMode(InputModeData);
+	PlayerController->bShowMouseCursor = true;
+
 }
 
 void UPuzzlePlatformGameInstance::Host()

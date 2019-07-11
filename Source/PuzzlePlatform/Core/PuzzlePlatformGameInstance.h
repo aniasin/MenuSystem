@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// SillikOne, UE4.
 
 #pragma once
 
@@ -19,8 +19,14 @@ public:
 
 	virtual void Init();
 
+	UFUNCTION(BlueprintCallable, Category = "MainMenu")
+		void LoadMenu();
+
 	UFUNCTION(Exec)
 		void Host();
 	UFUNCTION(Exec)
 		void Join(const FString Address);
+
+private:
+	TSubclassOf<class UUserWidget> MainMenuWidget;
 };
