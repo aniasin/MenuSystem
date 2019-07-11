@@ -1,2 +1,2 @@
 # MenuSystem
-Allwayse from GameDev.tv
+Allways from GameDev.tv
