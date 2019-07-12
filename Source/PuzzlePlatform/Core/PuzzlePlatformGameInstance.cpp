@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
+#include "MenuSystem/MainMenu.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer & ObjectInitializer)
 {
@@ -21,26 +22,26 @@ void UPuzzlePlatformGameInstance::Init()
 	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *MainMenuWidget->GetName())
 }
 
-
 void UPuzzlePlatformGameInstance::LoadMenu()
 {
 	// Create and show Menu
-	if (!ensure(MainMenuWidget)) { return; }
-	UUserWidget* Menu = CreateWidget<UUserWidget>(this, MainMenuWidget);
+	if (!MainMenuWidget) { return; }
+	UMainMenu* Menu = CreateWidget<UMainMenu>(this, MainMenuWidget);
 	Menu->AddToViewport();
 
 	// Set InputMode UI only and show Mouse Cursor
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (!ensure(PlayerController)) { return; }
+	if (!PlayerController) { return; }
 	FInputModeUIOnly InputModeData;
 	InputModeData.SetWidgetToFocus(Menu->TakeWidget());
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	PlayerController->SetInputMode(InputModeData);
 	PlayerController->bShowMouseCursor = true;
 
+	Menu->SetMenuInterface(this);
 }
 
-void UPuzzlePlatformGameInstance::Host()
+void UPuzzlePlatformGameInstance::HostServer()
 {
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine)) { return; }
@@ -51,8 +52,9 @@ void UPuzzlePlatformGameInstance::Host()
 	World->ServerTravel("/Game/Maps/Level_01?Listen");
 }
 
-void UPuzzlePlatformGameInstance::Join(const FString Address)
+void UPuzzlePlatformGameInstance::JoinServer(FString Address)
 {
+	Address = "192.168.0.35";
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine)) { return; }
 	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, FString::Printf(TEXT("Joining: %s"), *Address));
