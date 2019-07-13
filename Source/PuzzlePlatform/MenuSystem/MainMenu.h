@@ -15,7 +15,7 @@ class PUZZLEPLATFORM_API UMainMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
-	virtual void NativeConstruct() override;
+	virtual bool Initialize() override;
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostBtn;
@@ -32,4 +32,6 @@ class PUZZLEPLATFORM_API UMainMenu : public UUserWidget
 public:
 	void SetMenuInterface(IMenuInterface* MenuInterface);
 
+	void SetUp();
+	void TearDown();
 };
