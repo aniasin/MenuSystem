@@ -4,22 +4,27 @@
 #include "MainMenu.h"
 #include "MenuInterface.h"
 #include "Components/Button.h"
+#include "Components/Widget.h"
+#include "Components/WidgetSwitcher.h"
+#include "Components/EditableTextBox.h"
 
 bool UMainMenu::Initialize()
 {
 	bool Success = Super::Initialize();
 	if (!Success) return false;
 
-
-
-	// can be nullptr if we haven't created it in the
-	// Blueprint subclass
 	if (!JoinBtn) { return false; }
-	//JoinBtn->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
-
 	if (!HostBtn) { return false; }
-	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	if (!BackBtn) { return false; }
+	if (!JoinIPBtn) { return false; }
+	if (!MenuSwitch) { return false; }
+	if (!MainMenu) { return false; }
+	if (!JoinMenu) { return false; }
 
+	JoinBtn->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	BackBtn->OnClicked.AddDynamic(this, &UMainMenu::MenuBack);
+	JoinIPBtn->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
 	return true;
 }
 
@@ -57,13 +62,13 @@ void UMainMenu::TearDown()
 
 void UMainMenu::SetMenuInterface(IMenuInterface* MenuInterface)
 {
-	// get a reference to MenuInterface
 	this->MenuInterface = MenuInterface;
 }
 
-void UMainMenu::JoinServer(FString Address)
+void UMainMenu::JoinServer()
 {
 	if (!MenuInterface) { return; }
+	const FString& Address = IPAddressField->GetText().ToString();
 	MenuInterface->JoinServer(Address);
 }
 
@@ -72,3 +77,18 @@ void UMainMenu::HostServer()
 	if (!MenuInterface) { return; }
 	MenuInterface->HostServer();
 }
+
+void UMainMenu::OpenJoinMenu()
+{
+	MenuSwitch->SetActiveWidget(JoinMenu);
+}
+
+void UMainMenu::MenuBack()
+{
+	UWidget* CurrentWidget = MenuSwitch->GetActiveWidget();
+	if (CurrentWidget == JoinMenu)
+	{
+		MenuSwitch->SetActiveWidget(MainMenu);
+	}
+}
+

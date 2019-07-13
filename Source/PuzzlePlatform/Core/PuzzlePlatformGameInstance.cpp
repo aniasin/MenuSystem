@@ -8,6 +8,7 @@
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
 #include "MenuSystem/MainMenu.h"
+#include "MenuSystem/GameMenu.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer & ObjectInitializer)
 {
@@ -15,11 +16,18 @@ UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitialize
 	
 	if (!ensure(MainMenuWidgetClass.Class)) { return; }
 	MainMenuWidget = MainMenuWidgetClass.Class;
+
+	ConstructorHelpers::FClassFinder<UUserWidget> GameMenuWidgetClass(TEXT("/Game/MenuSystem/W_GameMenu"));
+
+	if (!ensure(GameMenuWidgetClass.Class)) { return; }
+	GameMenuWidget = GameMenuWidgetClass.Class;
 }
 
 void UPuzzlePlatformGameInstance::Init()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *MainMenuWidget->GetName())
+	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *GameMenuWidget->GetName())
+
 }
 
 void UPuzzlePlatformGameInstance::LoadMenu()
@@ -32,6 +40,18 @@ void UPuzzlePlatformGameInstance::LoadMenu()
 	Menu->SetUp();
 
 	Menu->SetMenuInterface(this);
+}
+
+void UPuzzlePlatformGameInstance::OpenGameMenu()
+{
+	// Create and show Menu
+	if (!GameMenuWidget) { return; }
+	GameMenu = CreateWidget<UGameMenu>(this, GameMenuWidget);
+	GameMenu->AddToViewport();
+
+	GameMenu->SetUp();
+
+	GameMenu->SetMenuInterface(this);
 }
 
 void UPuzzlePlatformGameInstance::HostServer()
@@ -50,9 +70,12 @@ void UPuzzlePlatformGameInstance::HostServer()
 	World->ServerTravel("/Game/Maps/Level_01?Listen");
 }
 
-void UPuzzlePlatformGameInstance::JoinServer(FString Address)
+void UPuzzlePlatformGameInstance::JoinServer(const FString Address)
 {
-	Address = "192.168.0.35";
+	if (Menu)
+	{
+		Menu->TearDown();
+	}
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine)) { return; }
 	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, FString::Printf(TEXT("Joining: %s"), *Address));
