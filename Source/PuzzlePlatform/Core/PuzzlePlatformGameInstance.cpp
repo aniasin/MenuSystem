@@ -2,7 +2,9 @@
 
 
 #include "PuzzlePlatformGameInstance.h"
+#include "Classes/Engine/Player.h"
 #include "GameFramework/PlayerController.h"
+#include "Classes/GameFramework/Character.h"
 #include "Platforms/Trigger.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/Engine.h"
@@ -82,5 +84,13 @@ void UPuzzlePlatformGameInstance::QuitToLobby()
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!ensure(PlayerController)) { return; }
 
+	// if Server
+	if (PlayerController->GetCharacter()->HasAuthority())
+	{
+		UWorld* World = GetWorld();
+		if (!ensure(World)) { return; }
+		World->ServerTravel("/Game/Maps/Lobby");
+		return;
+	}
 	PlayerController->ClientTravel("/Game/Maps/Lobby", ETravelType::TRAVEL_Absolute);
 }

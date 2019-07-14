@@ -30,9 +30,8 @@ bool UGameMenu::Initialize()
 void UGameMenu::Quit()
 {
 	// MenuInterface is set in Parent (Menu.cpp)
-	if (!MenuInterface) { 
-		UE_LOG(LogTemp, Error, TEXT("NO INERFACE!"))
-		return; }
+	if (!MenuInterface) { return; }
+	TearDown();
 	MenuInterface->QuitToLobby();
 }
 
