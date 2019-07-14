@@ -7,18 +7,17 @@
 #include "Blueprint/UserWidget.h"
 #include "Engine/Engine.h"
 #include "UObject/ConstructorHelpers.h"
+#include "MenuSystem/Menu.h"
 #include "MenuSystem/MainMenu.h"
 #include "MenuSystem/GameMenu.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer & ObjectInitializer)
 {
-	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetClass(TEXT("/Game/MenuSystem/W_MainMenu"));
-	
+	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuWidgetClass(TEXT("/Game/MenuSystem/W_MainMenu"));	
 	if (!ensure(MainMenuWidgetClass.Class)) { return; }
 	MainMenuWidget = MainMenuWidgetClass.Class;
 
 	ConstructorHelpers::FClassFinder<UUserWidget> GameMenuWidgetClass(TEXT("/Game/MenuSystem/W_GameMenu"));
-
 	if (!ensure(GameMenuWidgetClass.Class)) { return; }
 	GameMenuWidget = GameMenuWidgetClass.Class;
 }
@@ -27,39 +26,29 @@ void UPuzzlePlatformGameInstance::Init()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *MainMenuWidget->GetName())
 	UE_LOG(LogTemp, Warning, TEXT("Found Class: %s"), *GameMenuWidget->GetName())
-
 }
 
-void UPuzzlePlatformGameInstance::LoadMenu()
+void UPuzzlePlatformGameInstance::LoadMainMenu()
 {
 	// Create and show Menu
 	if (!MainMenuWidget) { return; }
-	Menu = CreateWidget<UMainMenu>(this, MainMenuWidget);
-	Menu->AddToViewport();
-
-	Menu->SetUp();
-
-	Menu->SetMenuInterface(this);
+	MainMenu = CreateWidget<UMainMenu>(this, MainMenuWidget);
+	MainMenu->SetUp();
+	MainMenu->SetMenuInterface(this);
 }
 
-void UPuzzlePlatformGameInstance::OpenGameMenu()
+void UPuzzlePlatformGameInstance::LoadGameMenu()
 {
 	// Create and show Menu
 	if (!GameMenuWidget) { return; }
 	GameMenu = CreateWidget<UGameMenu>(this, GameMenuWidget);
-	GameMenu->AddToViewport();
-
 	GameMenu->SetUp();
-
 	GameMenu->SetMenuInterface(this);
 }
 
 void UPuzzlePlatformGameInstance::HostServer()
 {
-	if (Menu)
-	{
-		Menu->TearDown();
-	}
+	if (MainMenu){ MainMenu->TearDown();}
 
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine)) { return; }
@@ -72,10 +61,7 @@ void UPuzzlePlatformGameInstance::HostServer()
 
 void UPuzzlePlatformGameInstance::JoinServer(const FString Address)
 {
-	if (Menu)
-	{
-		Menu->TearDown();
-	}
+	if (MainMenu){ MainMenu->TearDown();}
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine)) { return; }
 	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, FString::Printf(TEXT("Joining: %s"), *Address));
@@ -84,5 +70,17 @@ void UPuzzlePlatformGameInstance::JoinServer(const FString Address)
 	if (!ensure(PlayerController)) { return; }
 
 	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+}
 
+void UPuzzlePlatformGameInstance::QuitToLobby()
+{
+	if (GameMenu) { GameMenu->TearDown(); }
+	UEngine* Engine = GetEngine();
+	if (!ensure(Engine)) { return; }
+	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, FString::Printf(TEXT("Leaving...")));
+
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!ensure(PlayerController)) { return; }
+
+	PlayerController->ClientTravel("/Game/Maps/Lobby", ETravelType::TRAVEL_Absolute);
 }

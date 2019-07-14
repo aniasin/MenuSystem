@@ -21,20 +21,23 @@ public:
 	virtual void Init();
 
 	UFUNCTION(BlueprintCallable, Category = "MenuSystem")
-		void LoadMenu();
+		void LoadMainMenu();
 	UFUNCTION(BlueprintCallable, Category = "MenuSystem")
-		void OpenGameMenu();
-
+		void LoadGameMenu();
+	
 	UFUNCTION()
 		virtual void HostServer()override;
 
 	UFUNCTION()
 		virtual void JoinServer(const FString Address)override;
 
-private:
+	UFUNCTION()
+		virtual void QuitToLobby()override;
+
+protected:
 	TSubclassOf<class UUserWidget> MainMenuWidget;
 	TSubclassOf<class UUserWidget> GameMenuWidget;
 
-	class UMainMenu* Menu;
+	class UMainMenu* MainMenu;
 	class UGameMenu* GameMenu;
 };

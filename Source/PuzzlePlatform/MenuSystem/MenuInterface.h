@@ -25,4 +25,6 @@ public:
 	virtual void JoinServer(const FString Address) = 0;
 
 	virtual void HostServer() = 0;
+
+	virtual void QuitToLobby() = 0;
 };

@@ -13,60 +13,24 @@ bool UMainMenu::Initialize()
 	bool Success = Super::Initialize();
 	if (!Success) return false;
 
-	if (!JoinBtn) { return false; }
-	if (!HostBtn) { return false; }
-	if (!BackBtn) { return false; }
-	if (!JoinIPBtn) { return false; }
 	if (!MenuSwitch) { return false; }
 	if (!MainMenu) { return false; }
 	if (!JoinMenu) { return false; }
 
+	if (!JoinBtn) { return false; }
 	JoinBtn->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+	if (!HostBtn) { return false; }
 	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+	if (!BackBtn) { return false; }
 	BackBtn->OnClicked.AddDynamic(this, &UMainMenu::MenuBack);
+	if (!JoinIPBtn) { return false; }
 	JoinIPBtn->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
 	return true;
 }
 
-void UMainMenu::SetUp()
-{
-	UWorld* World = GetWorld();
-	if (!World) { return; }
-
-	// Set InputMode UI only and show Mouse Cursor
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if (!PlayerController) { return; }
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(this->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->bShowMouseCursor = true;
-}
-
-
-
-void UMainMenu::TearDown()
-{
-	this->RemoveFromViewport();
-
-	UWorld* World = GetWorld();
-	if (!World) { return; }
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if (!PlayerController) { return; }
-
-	FInputModeGameOnly InputModeData;
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->bShowMouseCursor = false;
-
-}
-
-void UMainMenu::SetMenuInterface(IMenuInterface* MenuInterface)
-{
-	this->MenuInterface = MenuInterface;
-}
-
 void UMainMenu::JoinServer()
 {
+	// MenuInterface is set in Parent (Menu.cpp)
 	if (!MenuInterface) { return; }
 	const FString& Address = IPAddressField->GetText().ToString();
 	MenuInterface->JoinServer(Address);
