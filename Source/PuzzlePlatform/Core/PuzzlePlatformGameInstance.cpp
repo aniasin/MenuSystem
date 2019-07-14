@@ -12,6 +12,7 @@
 #include "MenuSystem/Menu.h"
 #include "MenuSystem/MainMenu.h"
 #include "MenuSystem/GameMenu.h"
+#include "Classes/Engine/Console.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer & ObjectInitializer)
 {

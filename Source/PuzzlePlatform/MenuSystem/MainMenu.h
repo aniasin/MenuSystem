@@ -25,6 +25,8 @@ class PUZZLEPLATFORM_API UMainMenu : public UMenu
 	class UButton* BackBtn;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* JoinIPBtn;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* QuitGameBtn;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitch;
@@ -44,5 +46,7 @@ class PUZZLEPLATFORM_API UMainMenu : public UMenu
 	void OpenJoinMenu();
 	UFUNCTION()
 	void MenuBack();
+	UFUNCTION()
+	void QuitGame();
 
 };

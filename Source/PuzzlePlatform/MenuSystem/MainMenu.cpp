@@ -2,6 +2,7 @@
 
 
 #include "MainMenu.h"
+#include "GameFramework/PlayerController.h"
 #include "MenuInterface.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
@@ -25,6 +26,8 @@ bool UMainMenu::Initialize()
 	BackBtn->OnClicked.AddDynamic(this, &UMainMenu::MenuBack);
 	if (!JoinIPBtn) { return false; }
 	JoinIPBtn->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
+	if (!QuitGameBtn) { return false; }
+	QuitGameBtn->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 	return true;
 }
 
@@ -54,5 +57,15 @@ void UMainMenu::MenuBack()
 	{
 		MenuSwitch->SetActiveWidget(MainMenu);
 	}
+}
+
+void UMainMenu::QuitGame()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) { return; }
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if (!PlayerController) { return; }
+	if (!MenuInterface) { return; }
+	PlayerController->ConsoleCommand("Quit");
 }
 
